@@ -1,0 +1,576 @@
+definitions:
+  models.AddReadingRequest:
+    properties:
+      timestamp:
+        type: string
+      value:
+        type: number
+    required:
+    - value
+    type: object
+  models.AuthResponse:
+    description: Authentication response containing JWT token and user information
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.CreateMetricRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      room_id:
+        type: string
+      unit:
+        type: string
+    required:
+    - name
+    - unit
+    type: object
+  models.CreateRoleRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    type: object
+  models.CreateRoomRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  models.LoginRequest:
+    description: Login request payload
+    properties:
+      password:
+        example: secretpassword
+        type: string
+      username:
+        example: johndoe
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.Metric:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      room_id:
+        type: string
+      unit:
+        description: единица измерения (кВт, м³, и т.д.)
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.MetricListResponse:
+    properties:
+      metrics:
+        items:
+          $ref: '#/definitions/models.Metric'
+        type: array
+      total:
+        type: integer
+    type: object
+  models.MetricReading:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      metric_id:
+        type: string
+      timestamp:
+        type: string
+      value:
+        type: number
+    type: object
+  models.MetricWithReadings:
+    properties:
+      metric:
+        $ref: '#/definitions/models.Metric'
+      readings:
+        items:
+          $ref: '#/definitions/models.MetricReading'
+        type: array
+    type: object
+  models.ReadingListResponse:
+    properties:
+      readings:
+        items:
+          $ref: '#/definitions/models.MetricReading'
+        type: array
+      total:
+        type: integer
+    type: object
+  models.RegisterRequest:
+    description: Registration request payload
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: secretpassword
+        type: string
+      roles:
+        example:
+        - '[''user'''
+        - ' ''admin'']'
+        items:
+          type: string
+        type: array
+      username:
+        example: johndoe
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+    type: object
+  models.Room:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.RoomListResponse:
+    properties:
+      rooms:
+        items:
+          $ref: '#/definitions/models.Room'
+        type: array
+      total:
+        type: integer
+    type: object
+  models.User:
+    description: User information
+    properties:
+      created_at:
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+      updated_at:
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  models.UserListResponse:
+    description: Response containing a list of users
+    properties:
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /metrics:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all metrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MetricListResponse'
+      summary: List all metrics
+      tags:
+      - metrics
+    post:
+      consumes:
+      - application/json
+      description: Create a new household metric
+      parameters:
+      - description: Metric creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateMetricRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Metric'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new metric
+      tags:
+      - metrics
+  /metrics/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a metric and all its readings
+      parameters:
+      - description: Metric ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a metric
+      tags:
+      - metrics
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific metric with its readings
+      parameters:
+      - description: Metric ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MetricWithReadings'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get metric details
+      tags:
+      - metrics
+  /metrics/{id}/readings:
+    get:
+      consumes:
+      - application/json
+      description: Get all readings for a metric
+      parameters:
+      - description: Metric ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReadingListResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get metric readings
+      tags:
+      - metrics
+    post:
+      consumes:
+      - application/json
+      description: Add a new reading for a metric
+      parameters:
+      - description: Metric ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Reading request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddReadingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MetricReading'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a reading
+      tags:
+      - metrics
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided information
+      parameters:
+      - description: Registration request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /roles:
+    post:
+      consumes:
+      - application/json
+      description: Create a new role with specified permissions
+      parameters:
+      - description: Role creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Role'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new role
+      tags:
+      - roles
+  /rooms:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all rooms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RoomListResponse'
+      summary: List all rooms
+      tags:
+      - rooms
+    post:
+      consumes:
+      - application/json
+      description: Create a new room with specified name and description
+      parameters:
+      - description: Room creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Room'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new room
+      tags:
+      - rooms
+  /rooms/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a room and all its metrics
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a room
+      tags:
+      - rooms
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific room with its metrics
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Room'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get room details
+      tags:
+      - rooms
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all registered users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserListResponse'
+      summary: List all users
+      tags:
+      - users
+swagger: "2.0"
