@@ -17,6 +17,32 @@ definitions:
       user:
         $ref: '#/definitions/models.User'
     type: object
+  models.CorrelationRequest:
+    properties:
+      endTime:
+        type: string
+      metric1Id:
+        type: string
+      metric2Id:
+        type: string
+      startTime:
+        type: string
+    type: object
+  models.CorrelationResponse:
+    properties:
+      correlation:
+        type: number
+      endTime:
+        type: string
+      message:
+        type: string
+      metric1Name:
+        type: string
+      metric2Name:
+        type: string
+      startTime:
+        type: string
+    type: object
   models.CreateMetricRequest:
     properties:
       description:
@@ -403,6 +429,35 @@ paths:
               type: string
             type: object
       summary: Add a reading
+      tags:
+      - metrics
+  /metrics/correlation:
+    post:
+      consumes:
+      - application/json
+      description: Calculate linear correlation between two metrics over a specified
+        period
+      parameters:
+      - description: Correlation calculation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CorrelationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CorrelationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Calculate correlation between two metrics
       tags:
       - metrics
   /register:

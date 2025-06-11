@@ -57,3 +57,21 @@ type ReadingListResponse struct {
 	Readings []MetricReading `json:"readings"`
 	Total    int             `json:"total"`
 }
+
+// CorrelationRequest represents a request to calculate correlation between metrics
+type CorrelationRequest struct {
+	Metric1ID uuid.UUID `json:"metric1Id"`
+	Metric2ID uuid.UUID `json:"metric2Id"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+}
+
+// CorrelationResponse represents the correlation calculation result
+type CorrelationResponse struct {
+	Metric1Name string    `json:"metric1Name"`
+	Metric2Name string    `json:"metric2Name"`
+	StartTime   time.Time `json:"startTime"`
+	EndTime     time.Time `json:"endTime"`
+	Correlation float64   `json:"correlation"`
+	Message     string    `json:"message"`
+}

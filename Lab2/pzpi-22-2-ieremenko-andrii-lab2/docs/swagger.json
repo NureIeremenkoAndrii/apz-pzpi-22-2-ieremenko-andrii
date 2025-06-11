@@ -111,6 +111,49 @@
                 }
             }
         },
+        "/metrics/correlation": {
+            "post": {
+                "description": "Calculate linear correlation between two metrics over a specified period",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "metrics"
+                ],
+                "summary": "Calculate correlation between two metrics",
+                "parameters": [
+                    {
+                        "description": "Correlation calculation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CorrelationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CorrelationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/metrics/{id}": {
             "get": {
                 "description": "Get details of a specific metric with its readings",
@@ -574,6 +617,46 @@
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.CorrelationRequest": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "metric1Id": {
+                    "type": "string"
+                },
+                "metric2Id": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CorrelationResponse": {
+            "type": "object",
+            "properties": {
+                "correlation": {
+                    "type": "number"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "metric1Name": {
+                    "type": "string"
+                },
+                "metric2Name": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
                 }
             }
         },
